@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+    body {
+        max-height: 100vh;
+    }
+
+    .position-relative {
+        position: relative;
+    }
+
+    .position-absolute {
+        position: absolute;
+    }
+    </style>
+</head>
+
+<body>
+    <section class="vh-100"
+        style="background-color: #4B515D;display: flex;flex-direction: column;align-items: center;justify-content: center;">
+        <div>
+            <div class="container"><h3 style="color: white;">Weather Info By Dexter Labs</h3></div>
+            
+            <div class="row" style="margin:35px">
+                <div class="col-md-12" style="display: flex;justify-content:center">
+                    <div class="d-flex position-relative" style="margin-right: 10px;">
+                        <input type="search" id="place" class="form-control" placeholder="Place to search">
+                        <i class="far fa-map-marker-alt position-absolute"
+                            style="top: 50%; right: 0px; transform: translateY(-50%);">
+                            <img id="current_loc" src="location.png" style="width: 30px; cursor:pointer">
+                        </i>
+                    </div>
+                    <button class="btn btn-primary" onClick="get_location_postal($( '#place').val())">
+                        Search
+                    </button>
+                </div>
+            </div>
+            <div class="container" id="main_div">
+                <div class="hello">
+                    <div class="">
+                        <div class="card" style="color: #4B515D; border-radius: 35px;">
+                            <div class="card-body p-4">
+                                <div class="d-flex">
+                                    <h6 class="flex-grow-1" id="location"></h6>
+                                    <h6 id="date"></h6><br>
+                                </div>
+                                <div class="d-flex">
+                                    <h6 class="flex-grow-1" id="locatison"></h6>
+                                    <h6 id="time"></h6>
+                                </div>
+                                <div class="d-flex flex-column text-center mt-5 mb-4">
+                                    <h6 class="display-4 mb-0 font-weight-bold" id="temp" style="color: #1C2331;">
+                                        °C </h6>
+                                    <span class="small" id="description"
+                                        style="color: #868B94"></span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1" style="font-size: 1rem;">
+                                        <div><i class="fas fa-wind fa-fw" style="color: #868B94;"></i> <span
+                                                class="ms-1" id="wind_speed"></span></div>
+                                        <div><i class="fas fa-tint fa-fw" style="color: #868B94;"></i> <span
+                                                class="ms-1" id="humidity"></span>
+                                        </div>
+                                    </div>
+                                    <div id="icon"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+</body>
+<script>
+$(".hello").hide();
+$("#currrent_loc").click(function() {
+    $(".hello").slideDown();
+})
+</script>
+<script>
+$("#current_loc").click(function() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var key = "9b4d6c3840eadd520ee6ab38be35451f";
+            var unit = "metric";
+            var url = "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + key + "&units=" + unit;
+            $.ajax({
+                url: url,
+                cache: false,
+                success: function(response) {
+                    console.log(response);
+                    var temp = Math.floor(response.main.temp);
+                    var timestamp = response.dt;
+                    const dtObject = new Date(timestamp * 1000);
+                    const date = dtObject.toLocaleDateString('en-US', {day: 'numeric', month: 'short',year: 'numeric'});
+                    const time = dtObject.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit',hour12: true});
+                    $('#temp').html(Math.floor(response.main.temp) + "°C");
+                    $('#time').html(time);
+                    $('#date').html(date);
+                    $('#description').html(response.weather[0].main);
+                    $('#humidity').html("Humidity:"+(response.main.humidity) + "%");
+                    $('#wind_speed').html("Wind Speed:"+(response.wind.speed) + "km/h");
+                    var icon = `<img src="https://openweathermap.org/img/wn/`+response.weather[0].icon+`@2x.png"
+                                            width="100px" style="margin:-20px">`
+                    $('#icon').append(icon)
+                    var url = "https://geocode.maps.co/reverse?lat=" + latitude + "&lon=" + longitude;
+                    $.ajax({
+                        url: url,
+                        cache: false,
+                        success: function(html) {
+                            console.log(html.address.suburb);
+                            $('#location').html(html.address.suburb);
+                        }
+                    })
+                    $(".hello").slideDown();
+                }
+            })
+        });
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
+});
+</script>
+<script>
+function get_location_postal(place) {
+    // alert(place);
+    // var url = "https://api.postalpincode.in/pincode/" + pincode;
+    // $.ajax({
+    //     url: url,
+    //     cache: false,
+    //     success: function(response) {
+    //         console.log(response);
+    //     }
+    // })
+    var apikey = "L4pjS0UmEru60A7OZnnOYkBfCKoC1syF"
+    var url = "http://dataservice.accuweather.com/locations/v1/cities/search?apikey=" + apikey + "&q=" + place;
+    $.ajax({
+        url: url,
+        cache: false,
+        success: function(response) {
+            // console.log(response);
+            // console.log(response[0].EnglishName);
+            $('#location').html(response[0].EnglishName);
+            // var location_key = response[0].GeoPosition[0].key;
+            // var url1 = "http://dataservice.accuweather.com/currentconditions/v1/"+location_key+"?apikey="+apikey;
+            var url1 =
+                "http://dataservice.accuweather.com/currentconditions/v1/3588398?apikey=L4pjS0UmEru60A7OZnnOYkBfCKoC1syF";
+            $.ajax({
+                url: url,
+                cache: false,
+                success: function(response) {
+                    console.log(response);
+                }
+            })
+        }
+    })
+}
+</script>
+<script>
+
+</script>
+
+</html>
