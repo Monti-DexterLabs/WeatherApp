@@ -123,7 +123,13 @@ $("#current_loc").click(function() {
                     $('#wind_speed').html("Wind Speed:"+(response.wind.speed) + "km/h");
                     var icon = `<img src="https://openweathermap.org/img/wn/`+response.weather[0].icon+`@2x.png"
                                             width="100px" style="margin:-20px">`
-                    $('#icon').append(icon)
+                    // $('#icon').append(icon)
+                    var icons = document.getElementById("icon");
+                    if (icons.innerHTML.trim() === "") {
+                        $('#icon').append(icon);
+                    } else {
+                        $('#icon').html(icon);
+                    }
                     var url = "https://geocode.maps.co/reverse?lat=" + latitude + "&lon=" + longitude;
                     $.ajax({
                         url: url,
